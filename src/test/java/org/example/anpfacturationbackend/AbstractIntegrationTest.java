@@ -20,11 +20,21 @@ public abstract class AbstractIntegrationTest {
             .withUsername("testuser")
             .withPassword("testpass");
 
+    @Container
+    @SuppressWarnings("resource")
+    static final org.testcontainers.containers.GenericContainer<?> mailhog = new org.testcontainers.containers.GenericContainer<>(
+            "mailhog/mailhog:latest")
+            .withExposedPorts(1025, 8025);
+
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
         registry.add("spring.flyway.enabled", () -> "true");
+
+        // Configuration dynamique de MailHog
+        registry.add("spring.mail.host", mailhog::getHost);
+        registry.add("spring.mail.port", () -> mailhog.getMappedPort(1025));
     }
 }

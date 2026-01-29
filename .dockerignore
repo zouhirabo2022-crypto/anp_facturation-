@@ -1,0 +1,14 @@
+target/
+!.jar
+.git/
+.gitignore
+.vscode/
+.idea/
+.mvn/
+mvnw
+mvnw.cmd
+Dockerfile
+docker-compose.yml
+frontend/
+node_modules/
+dist/

@@ -1,0 +1,47 @@
+/* Styles spécifiques pour le détail de la facture */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.avatar-placeholder {
+  font-weight: 600;
+  background-color: #e9ecef;
+  color: #0d6efd;
+}
+
+/* Custom Table Styles */
+.table thead th {
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  color: #6c757d;
+  background-color: #f8f9fa;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+/* Card Improvements */
+.card {
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.08)!important;
+}
+
+/* Badge Tweaks */
+.badge {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Frame styling */
+iframe {
+  border: none;
+}

@@ -1,0 +1,310 @@
+/* Global Variables & Theme */
+:root {
+  --anp-blue: #003366; /* Bleu Institutionnel */
+  --anp-blue-light: #004d99;
+  --anp-blue-dark: #002244;
+  --anp-grey-bg: #f4f6f9; /* Light grey background */
+  --anp-grey-text: #6c757d;
+  --anp-border-color: #dee2e6;
+  --anp-white: #ffffff;
+  --anp-success: #198754;
+  --anp-warning: #ffc107;
+  --anp-danger: #dc3545;
+  
+  --font-family-base: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--anp-grey-bg);
+  color: #333;
+  font-size: 0.95rem;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--anp-blue);
+  font-weight: 600;
+}
+
+.text-anp-blue {
+  color: var(--anp-blue) !important;
+}
+
+/* Card Styling - Corporate Look */
+.card {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  background-color: var(--anp-white);
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+}
+
+.card:hover {
+  /* Subtle lift on hover for interactive cards */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-header {
+  background-color: var(--anp-white);
+  border-bottom: 1px solid var(--anp-border-color);
+  font-weight: 600;
+  color: var(--anp-blue);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Table Styling - Clean & Professional */
+.table {
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  color: var(--anp-blue);
+  font-weight: 600;
+  border-bottom: 2px solid var(--anp-blue);
+  border-top: none;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  padding: 1rem 0.75rem;
+}
+
+.table tbody td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+  color: #495057;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 51, 102, 0.03);
+}
+
+/* Badges */
+.badge {
+  font-weight: 500;
+  padding: 0.5em 0.8em;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.bg-success-subtle {
+  background-color: #d1e7dd !important;
+  color: #0f5132 !important;
+}
+
+.bg-warning-subtle {
+  background-color: #fff3cd !important;
+  color: #664d03 !important;
+}
+
+.bg-danger-subtle {
+  background-color: #f8d7da !important;
+  color: #842029 !important;
+}
+
+.bg-info-subtle {
+  background-color: #cff4fc !important;
+  color: #055160 !important;
+}
+
+/* Buttons - Professional & Modern */
+.btn {
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.3px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem; /* Space between icon and text */
+}
+
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 4px;
+}
+
+.btn-lg {
+  padding: 0.75rem 1.75rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+}
+
+/* Primary Button - ANP Blue */
+.btn-primary {
+  background-color: var(--anp-blue);
+  border-color: var(--anp-blue);
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 51, 102, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: var(--anp-blue-light);
+  border-color: var(--anp-blue-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 51, 102, 0.3);
+}
+
+.btn-primary:active, .btn-primary:focus {
+  background-color: var(--anp-blue-dark);
+  border-color: var(--anp-blue-dark);
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Outline Primary */
+.btn-outline-primary {
+  color: var(--anp-blue);
+  border-color: var(--anp-blue);
+  background-color: transparent;
+  font-weight: 600;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--anp-blue);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 51, 102, 0.2);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+}
+
+/* Success Button */
+.btn-success {
+  background-color: var(--anp-success);
+  border-color: var(--anp-success);
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(25, 135, 84, 0.2);
+}
+
+.btn-success:hover {
+  background-color: #157347;
+  border-color: #146c43;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(25, 135, 84, 0.3);
+}
+
+/* Danger Button */
+.btn-danger {
+  background-color: var(--anp-danger);
+  border-color: var(--anp-danger);
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+}
+
+.btn-danger:hover {
+  background-color: #bb2d3b;
+  border-color: #b02a37;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Light / Table Action Buttons */
+.btn-light {
+  background-color: #fff;
+  border-color: #dee2e6;
+  color: #495057;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.btn-light:hover {
+  background-color: #f8f9fa;
+  border-color: #c6c7c8;
+  color: var(--anp-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Icon adjustments */
+.btn i, .btn svg {
+  font-size: 0.9em;
+  margin: 0 !important; /* Override bootstrap margins, let gap handle spacing */
+}
+
+/* Specific fix for spinners which might need their own styling */
+.btn .spinner-border {
+  margin: 0 !important;
+}
+
+/* Icon-only buttons (for tables/actions) */
+.btn-icon {
+  padding: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.btn-sm.btn-icon {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.9rem;
+}
+
+.btn-rounded {
+  border-radius: 50rem !important;
+}
+
+/* Floating Action Button (if needed) */
+.btn-fab {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+}
+
+/* Form Controls */
+.form-control:focus, .form-select:focus {
+  border-color: var(--anp-blue-light);
+  box-shadow: 0 0 0 0.25rem rgba(0, 51, 102, 0.25);
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--anp-blue);
+  margin-bottom: 0.5rem;
+}
+
+/* Utility */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.shadow-sm-soft {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+}

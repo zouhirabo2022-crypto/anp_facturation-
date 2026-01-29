@@ -1,0 +1,6 @@
+/* Styles are handled by Bootstrap classes in the template */
+
+.required:after {
+    content: " *";
+    color: red;
+}

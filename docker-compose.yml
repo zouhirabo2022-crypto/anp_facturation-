@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14-alpine
+    container_name: anp-postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=anp_user
+      - POSTGRES_PASSWORD=anp_password
+      - POSTGRES_DB=anpdb
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U anp_user -d anpdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - anp-network
+
+  ldap:
+    image: osixia/openldap:latest
+    container_name: anp-ldap
+    restart: always
+    environment:
+      LDAP_ORGANISATION: "ANP"
+      LDAP_DOMAIN: "example.com"
+      LDAP_ADMIN_PASSWORD: "admin"
+    ports:
+      - "8389:389"
+      - "636:636"
+    networks:
+      - anp-network
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: anp-phpldapadmin
+    restart: always
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: "ldap"
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "8081:80"
+    depends_on:
+      - ldap
+    networks:
+      - anp-network
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: anp-mailhog
+    restart: always
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    networks:
+      - anp-network
+
+  app:
+    build: .
+    container_name: anp-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/anpdb
+      - SPRING_DATASOURCE_USERNAME=anp_user
+      - SPRING_DATASOURCE_PASSWORD=anp_password
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_MAIL_HOST=mailhog
+      - SPRING_MAIL_PORT=1025
+      - SPRING_LDAP_URLS=ldap://ldap:389
+      # Real Integrations
+      - SPRING_LDAP_AD_DOMAIN=
+      - SPRING_LDAP_AD_URL=
+      - SI_FINANCE_URL=http://finance.example.com/api
+      - SI_FINANCE_USERNAME=finance_user
+      - SI_FINANCE_PASSWORD=finance_pass
+      - PREST_URL=http://prest.example.com/api
+      - PREST_USERNAME=prest_user
+      - PREST_PASSWORD=prest_pass
+      - GRC_URL=http://grc.example.com/api
+      - GRC_USERNAME=grc_user
+      - GRC_PASSWORD=grc_pass
+    depends_on:
+      db:
+        condition: service_healthy
+      ldap:
+        condition: service_started
+    networks:
+      - anp-network
+
+  front:
+    build: ./frontend
+    container_name: anp-frontend
+    ports:
+      - "8088:80"
+    depends_on:
+      - app
+    networks:
+      - anp-network
+
+networks:
+  anp-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

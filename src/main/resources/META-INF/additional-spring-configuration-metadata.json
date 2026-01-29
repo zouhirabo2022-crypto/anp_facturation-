@@ -1,0 +1,47 @@
+{
+    "properties": [
+        {
+            "name": "si.finance.url",
+            "type": "java.lang.String",
+            "description": "URL for the SI Finance external system."
+        },
+        {
+            "name": "si.finance.username",
+            "type": "java.lang.String",
+            "description": "Username for SI Finance authentication."
+        },
+        {
+            "name": "si.finance.password",
+            "type": "java.lang.String",
+            "description": "Password for SI Finance authentication."
+        },
+        {
+            "name": "si.finance.timeout",
+            "type": "java.lang.Integer",
+            "description": "Timeout for SI Finance requests in milliseconds.",
+            "defaultValue": 5000
+        },
+        {
+            "name": "prest.url",
+            "type": "java.lang.String",
+            "description": "URL for the PREST external system."
+        },
+        {
+            "name": "prest.timeout",
+            "type": "java.lang.Integer",
+            "description": "Timeout for PREST requests in milliseconds.",
+            "defaultValue": 5000
+        },
+        {
+            "name": "grc.url",
+            "type": "java.lang.String",
+            "description": "URL for the GRC external system."
+        },
+        {
+            "name": "grc.timeout",
+            "type": "java.lang.Integer",
+            "description": "Timeout for GRC requests in milliseconds.",
+            "defaultValue": 5000
+        }
+    ]
+}

@@ -1,0 +1,242 @@
+:host {
+    display: block;
+    height: 100vh;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #333;
+}
+
+.login-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    position: relative;
+    background-color: #0d47a1; /* Fallback color */
+}
+
+/* 
+   IMAGE DE BACKGROUND (TRÈS IMPORTANT) 
+   - pnf.png covering the full page
+   - Represents maritime port
+*/
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('/assets/images/pnf.png') no-repeat center center;
+    background-size: cover;
+    background-attachment: fixed; /* Parallax effect for premium feel */
+    z-index: 0;
+    
+    /* 
+       "High Quality" Simulation:
+       - saturate(1.2): Couleurs plus vives
+       - contrast(1.1): Plus de profondeur
+       - brightness(1.05): Plus d'éclat
+       - drop-shadow: Petite astuce pour "détacher" les détails
+    */
+    filter: saturate(1.2) contrast(1.1) brightness(1.05);
+    
+    /* Optimisation du rendu navigateur */
+    image-rendering: -webkit-optimize-contrast;
+    transform: translateZ(0); /* Force GPU acceleration */
+}
+
+/* 
+   Global Overlay 
+   - Dégradé subtil à gauche pour la lisibilité du texte
+   - Vignette légère sur les bords pour l'effet cinéma
+*/
+.login-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Combo: Ombre à gauche + Vignette autour */
+    background: linear-gradient(to right, rgba(0, 20, 50, 0.6) 0%, rgba(0, 0, 0, 0) 50%),
+                radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.4) 100%);
+    z-index: 1;
+    pointer-events: none; /* Laisse passer les clics au cas où */
+}
+
+/* --- Animations --- */
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* --- Left Column: Branding (60%) --- */
+.branding-section {
+    flex: 6; /* 60% width */
+    position: relative;
+    z-index: 2; /* Above overlay */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px; /* Generous padding */
+    color: white;
+    /* Ombre portée plus légère car l'overlay aide déjà */
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3); 
+    
+    /* Animation entrée */
+    animation: fadeInRight 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.branding-content {
+    max-width: 650px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.logo-icon {
+    font-size: 3.5rem;
+    color: #bbdefb; /* Light blue tint */
+}
+
+.logo-text {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #fff;
+}
+
+.branding-section h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.subtitle {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: #e3f2fd;
+    letter-spacing: 0.5px;
+}
+
+/* --- Right Column: Login Card (40%) --- */
+.login-section {
+    flex: 4; /* 40% width */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center horizontally in this section */
+    position: relative;
+    z-index: 2; /* Above overlay */
+    padding: 20px;
+}
+
+.login-card {
+    /* Glassmorphism plus poussé pour un effet premium */
+    background: rgba(255, 255, 255, 0.88); /* Légère transparence pour laisser deviner le fond */
+    backdrop-filter: blur(15px); /* Flou d'arrière-plan puissant */
+    -webkit-backdrop-filter: blur(15px);
+    width: 100%;
+    max-width: 440px;
+    padding: 40px;
+    border-radius: 24px; /* Coins modernes */
+    
+    /* Ombre profonde et bordure subtile (effet verre) */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.9); /* Lumière venant du haut */
+    
+    margin-right: 10%; /* Slight visual offset */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    /* Animation entrée */
+    opacity: 0; /* Pour l'animation */
+    animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s forwards;
+}
+
+.login-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3);
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header-icon {
+    width: 60px;
+    height: 60px;
+    background-color: #e3f2fd; /* Light blue circle */
+    color: #1565c0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 15px;
+}
+
+.card-header h2 {
+    color: #0d47a1;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.card-header p {
+    color: #546e7a;
+    font-size: 0.95rem;
+}
+
+.card-footer {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #90a4ae; /* Gris clair */
+}
+
+/* --- Responsive --- */
+@media (max-width: 960px) {
+    .login-container {
+        flex-direction: column;
+    }
+
+    .branding-section {
+        display: none; 
+    }
+
+    .login-section {
+        flex: 1;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .login-card {
+        margin-right: 0; /* Reset offset */
+        max-width: 100%;
+    }
+}

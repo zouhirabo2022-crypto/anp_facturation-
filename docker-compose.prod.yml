@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Base de données Production (Simulée pour le test local)
+  # En vraie production, connectez-vous à une instance managée (RDS, etc.)
+  db-prod:
+    image: postgres:14-alpine
+    container_name: anp-postgres-prod
+    restart: always
+    environment:
+      - POSTGRES_USER=${PROD_DB_USER:-prod_user}
+      - POSTGRES_PASSWORD=${PROD_DB_PASS:-prod_pass}
+      - POSTGRES_DB=anpdb_prod
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - anp-network-prod
+
+  app-prod:
+    build: .
+    container_name: anp-backend-prod
+    ports:
+      - "8082:8080" # Port différent du Dev et de PHPMyAdmin (8081)
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      # DB Connection
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-prod:5432/anpdb_prod
+      - SPRING_DATASOURCE_USERNAME=${PROD_DB_USER:-prod_user}
+      - SPRING_DATASOURCE_PASSWORD=${PROD_DB_PASS:-prod_pass}
+
+      # Integrations (Variables à définir dans votre environnement ou .env)
+      - SI_FINANCE_URL=${SI_FINANCE_URL}
+      - SI_FINANCE_USERNAME=${SI_FINANCE_USERNAME}
+      - SI_FINANCE_PASSWORD=${SI_FINANCE_PASSWORD}
+
+      - PREST_URL=${PREST_URL}
+      - PREST_USERNAME=${PREST_USERNAME}
+      - PREST_PASSWORD=${PREST_PASSWORD}
+
+      - GRC_URL=${GRC_URL}
+      - GRC_USERNAME=${GRC_USERNAME}
+      - GRC_PASSWORD=${GRC_PASSWORD}
+
+      # Email
+      - SPRING_MAIL_HOST=${SMTP_HOST}
+      - SPRING_MAIL_PORT=${SMTP_PORT}
+      - SPRING_MAIL_USERNAME=${SMTP_USER}
+      - SPRING_MAIL_PASSWORD=${SMTP_PASS}
+
+    depends_on:
+      - db-prod
+    networks:
+      - anp-network-prod
+
+  # Frontend connecté à la prod
+  front-prod:
+    build: ./frontend
+    container_name: anp-frontend-prod
+    ports:
+      - "8089:80" # Port différent du Dev
+    depends_on:
+      - app-prod
+    networks:
+      - anp-network-prod
+
+networks:
+  anp-network-prod:
+    driver: bridge
+
+volumes:
+  postgres_data_prod:

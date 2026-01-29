@@ -1,0 +1,6 @@
+/* Styles are handled by Bootstrap utility classes in the template */
+
+.required:after {
+    content: " *";
+    color: #dc3545;
+}

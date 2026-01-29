@@ -1,0 +1,181 @@
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Gestion des Utilisateurs</h2>
+            <p class="text-muted mb-0">Administrez les comptes utilisateurs et leurs rôles</p>
+        </div>
+        <button class="btn btn-primary" (click)="openCreateModal()">
+            <i class="fas fa-plus me-2"></i>Nouvel Utilisateur
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-0">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0 text-primary"><i class="fas fa-users-cog me-2"></i>Liste des Utilisateurs</h5>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 bg-light" 
+                               placeholder="Rechercher par nom ou rôle..." 
+                               [(ngModel)]="searchTerm"
+                               (ngModelChange)="onSearch()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div *ngIf="successMessage" class="alert alert-success m-3">
+                <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+            </div>
+            <div *ngIf="errorMessage" class="alert alert-danger m-3">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ errorMessage }}
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Utilisateur</th>
+                            <th>Rôles</th>
+                            <th>Statut</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let u of paginatedUsers">
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar bg-light text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                         style="width: 40px; height: 40px; font-weight: bold;">
+                                        {{ u.username.charAt(0).toUpperCase() }}
+                                    </div>
+                                    <span class="fw-bold text-dark">{{ u.username }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-primary border me-1 mb-1" *ngFor="let r of u.roles">
+                                    {{ r }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill" [ngClass]="u.enabled ? 'bg-success' : 'bg-danger'">
+                                    {{ u.enabled ? 'Actif' : 'Désactivé' }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-sm btn-outline-primary me-2 border-0" (click)="openEditModal(u)" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm me-2 border-0" 
+                                        [ngClass]="u.enabled ? 'btn-outline-warning' : 'btn-outline-success'"
+                                        (click)="toggleUserStatus(u)"
+                                        [title]="u.enabled ? 'Désactiver' : 'Activer'">
+                                    <i class="fas" [class.fa-lock]="u.enabled" [class.fa-unlock]="!u.enabled"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger border-0" (click)="deleteUser(u.username)" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="filteredUsers.length === 0">
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <div class="mb-3">
+                                    <i class="fas fa-user-slash fa-3x opacity-50"></i>
+                                </div>
+                                <p class="mb-0">Aucun utilisateur trouvé.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white border-top-0 py-3 d-flex justify-content-between align-items-center">
+            <small class="text-muted">
+                Total: {{ filteredUsers.length }} utilisateurs
+            </small>
+            
+            <nav aria-label="Page navigation" *ngIf="totalPages > 1">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item" [class.disabled]="currentPage === 1">
+                        <a class="page-link" href="javascript:void(0)" (click)="setPage(currentPage - 1)" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" *ngFor="let p of pages" [class.active]="p === currentPage">
+                        <a class="page-link" href="javascript:void(0)" (click)="setPage(p)">{{ p }}</a>
+                    </li>
+                    <li class="page-item" [class.disabled]="currentPage === totalPages">
+                        <a class="page-link" href="javascript:void(0)" (click)="setPage(currentPage + 1)" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Modal User -->
+<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1" role="dialog" aria-hidden="true" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title text-primary">
+                    <i class="fas" [ngClass]="isEditing ? 'fa-user-edit' : 'fa-user-plus'"></i>
+                    {{ isEditing ? 'Modifier' : 'Nouvel' }} Utilisateur
+                </h5>
+                <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4">
+                <div *ngIf="errorMessage" class="alert alert-danger mb-3">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ errorMessage }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required">Nom d'utilisateur</label>
+                    <input type="text" [(ngModel)]="currentUser.username" [disabled]="isEditing" class="form-control" placeholder="Ex: admin">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label" [class.required]="!isEditing">
+                        Mot de passe 
+                        <span *ngIf="isEditing" class="text-muted small fw-normal">(laisser vide pour ne pas changer)</span>
+                    </label>
+                    <input type="password" [(ngModel)]="currentUser.password" class="form-control" placeholder="******">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Rôles</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <div *ngFor="let role of availableRoles" 
+                             class="role-item badge border p-2 cursor-pointer"
+                             [class.bg-primary]="hasRole(role)"
+                             [class.text-white]="hasRole(role)"
+                             [class.bg-light]="!hasRole(role)"
+                             [class.text-dark]="!hasRole(role)"
+                             (click)="toggleRole(role)"
+                             style="cursor: pointer; user-select: none;">
+                            <i class="fas" [ngClass]="hasRole(role) ? 'fa-check-circle' : 'fa-circle'"></i> {{ role }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-light border" (click)="closeModal()">Annuler</button>
+                <button type="button" class="btn btn-primary" (click)="saveUser()" [disabled]="loading">
+                    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                    Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

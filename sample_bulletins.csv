@@ -1,0 +1,4 @@
+id_bulletin,client_id,periode,code_prestation,quantite,type_terrain,nature_activite,categorie,code_port,code_activite
+BUL-2024-001,1,2024-01,PREST-001,5.0,TERRAIN_A,ACT_A,,,
+BUL-2024-001,1,2024-01,PREST-002,10.0,,,,,
+BUL-2024-002,2,2024-01,PREST-003,1.0,,,CAT_1,PORT_1,

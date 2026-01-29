@@ -1,0 +1,183 @@
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Nouvelle Facture</h2>
+        <button class="btn btn-outline-secondary" routerLink="/factures">
+            <i class="fas fa-arrow-left me-2"></i>Retour
+        </button>
+    </div>
+
+    <div class="row">
+        <!-- Main Form -->
+        <div class="col-lg-9">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Informations Client</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Client</label>
+                        <div class="input-group">
+                            <select [(ngModel)]="newFacture.clientId" class="form-select form-select-lg">
+                                <option value="0" disabled>Choisir un client...</option>
+                                <option *ngFor="let c of clients" [value]="c.id">{{ c.nom }} {{ c.prenom }}</option>
+                            </select>
+                            <button class="btn btn-outline-primary" type="button" routerLink="/clients/new">
+                                <i class="fas fa-plus"></i> Nouveau
+                            </button>
+                        </div>
+                        <div *ngIf="clients.length === 0" class="form-text text-danger">
+                            Aucun client disponible. Veuillez en créer un d'abord.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Détails des prestations</h5>
+                    <button class="btn btn-sm btn-light" (click)="addLine()">
+                        <i class="fas fa-plus me-2"></i>Ajouter une ligne
+                    </button>
+                </div>
+                <div class="card-body p-3">
+                    <div *ngFor="let ligne of newFacture.lignes; let i = index" class="card bg-light border-0 mb-3">
+                        <div class="card-body position-relative">
+                            <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2" 
+                                    (click)="removeLine(i)" title="Supprimer la ligne">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            
+                            <div class="row g-3">
+                                <!-- Prestation Selection -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Prestation</label>
+                                    <select [(ngModel)]="ligne.prestationId" (change)="onPrestationChange(i)" class="form-select">
+                                        <option value="0" disabled>Choisir...</option>
+                                        <option *ngFor="let p of prestations" [value]="p.id">{{ p.libelle }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Qté</label>
+                                    <input type="number" [(ngModel)]="ligne.quantite" (input)="calculateLine(i)" class="form-control" min="1">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Prix Unit. (DH)</label>
+                                    <input type="number" [(ngModel)]="ligne.prixUnitaire" (input)="calculateLine(i)" class="form-control" step="0.01">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Total HT</label>
+                                    <div class="form-control bg-white fw-bold text-end">
+                                        {{ (ligne.montantHt || 0).toFixed(2) }}
+                                    </div>
+                                </div>
+
+                                <!-- Specialized Criteria for Automatic Pricing -->
+                                <div class="col-12">
+                                    <div class="card border-info">
+                                        <div class="card-body p-2 bg-white">
+                                            <h6 class="card-subtitle mb-2 text-muted small"><i class="fas fa-filter me-1"></i>Critères de tarification</h6>
+                                            <div class="row g-2">
+                                                <div class="col-md-4">
+                                                    <small class="text-muted d-block mb-1">Type Terrain (OTDP)</small>
+                                                    <select [(ngModel)]="ligne.typeTerrain" class="form-select form-select-sm" (change)="onCriteriaChange(i)">
+                                                        <option [ngValue]="undefined">-</option>
+                                                        <option value="NU">Terrain Nu</option>
+                                                        <option value="AMENAGE">Terrain Aménagé</option>
+                                                        <option value="BATI">Bâtiment</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-muted d-block mb-1">Code Port (Eau/Elec)</small>
+                                                    <select [(ngModel)]="ligne.codePort" class="form-select form-select-sm" (change)="onCriteriaChange(i)">
+                                                        <option [ngValue]="undefined">-</option>
+                                                        <option value="CASABLANCA">Casablanca</option>
+                                                        <option value="JORF_LASFAR">Jorf Lasfar</option>
+                                                        <option value="AGADIR">Agadir</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-muted d-block mb-1">Activité (OTDP)</small>
+                                                    <input type="text" [(ngModel)]="ligne.natureActivite" class="form-control form-control-sm"
+                                                        placeholder="Ex: Cimenterie" (input)="onCriteriaChange(i)">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-muted d-block mb-1">Catégorie (OTDP)</small>
+                                                    <select [(ngModel)]="ligne.categorie" class="form-select form-select-sm" (change)="onCriteriaChange(i)">
+                                                        <option [ngValue]="undefined">-</option>
+                                                        <option value="PECHE">Pêche</option>
+                                                        <option value="PLAISANCE">Plaisance</option>
+                                                        <option value="AUTRE">Autre</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-muted d-block mb-1">Code Activité (Eau/Elec)</small>
+                                                    <input type="text" [(ngModel)]="ligne.codeActivite" class="form-control form-control-sm"
+                                                        placeholder="Ex: ELEC_MT" (input)="onCriteriaChange(i)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tax Details (Hidden/Collapsed or just small) -->
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">TVA (%)</span>
+                                        <input type="number" [(ngModel)]="ligne.tauxTva" (input)="calculateLine(i)" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">TR (%)</span>
+                                        <input type="number" [(ngModel)]="ligne.tauxTr" (input)="calculateLine(i)" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div *ngIf="newFacture.lignes.length === 0" class="text-center py-5 text-muted">
+                        <i class="fas fa-receipt fa-3x mb-3"></i>
+                        <p>Aucune ligne de prestation ajoutée.</p>
+                        <button class="btn btn-outline-primary" (click)="addLine()">Ajouter une première ligne</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Summary -->
+        <div class="col-lg-3">
+            <div class="card shadow-sm sticky-top" style="top: 20px; z-index: 100;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-calculator me-2"></i>Total</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Total HT:</span>
+                        <span class="fw-bold">{{ (newFacture.montantHt || 0).toFixed(2) }} DH</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Total TR:</span>
+                        <span class="fw-bold">{{ (newFacture.montantTr || 0).toFixed(2) }} DH</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Total TVA:</span>
+                        <span class="fw-bold">{{ (newFacture.montantTva || 0).toFixed(2) }} DH</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="h5 mb-0">Total TTC:</span>
+                        <span class="h4 text-primary mb-0">{{ (newFacture.montantTtc || 0).toFixed(2) }} DH</span>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success btn-lg" (click)="saveFacture()" [disabled]="loading">
+                            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                            <i class="fas fa-save me-2" *ngIf="!loading"></i>Enregistrer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

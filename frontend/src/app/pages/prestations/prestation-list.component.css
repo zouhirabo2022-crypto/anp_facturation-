@@ -1,0 +1,7 @@
+/* Styles are handled by Bootstrap utility classes in the template */
+
+/* Custom required field indicator if not using Bootstrap validation styling exclusively */
+.required:after {
+    content: " *";
+    color: #dc3545;
+}

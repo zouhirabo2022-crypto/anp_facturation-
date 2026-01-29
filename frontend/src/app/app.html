@@ -1,0 +1,61 @@
+<div class="app-shell" [class.no-sidebar]="!(isLoggedIn$ | async)">
+  <nav class="sidebar" *ngIf="isLoggedIn$ | async">
+    <div class="brand">
+      <span class="logo">ANP</span>
+      <span class="project-name">Facturation</span>
+    </div>
+
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/dashboard" routerLinkActive="active">
+          <span class="icon"><i class="fas fa-chart-line"></i></span> Tableau de bord
+        </a>
+      </li>
+      <li *ngIf="(authService.hasAnyRole(['ADMIN_SYSTEME','GESTIONNAIRE_PARAM','GESTIONNAIRE_TARIF','CONSULTATION']) | async)">
+        <a routerLink="/clients" routerLinkActive="active">
+          <span class="icon"><i class="fas fa-users"></i></span> Clients
+        </a>
+      </li>
+      <li>
+        <a routerLink="/prestations" routerLinkActive="active">
+          <span class="icon"><i class="fas fa-tags"></i></span> Prestations
+        </a>
+      </li>
+      <li>
+        <a routerLink="/bulletins" routerLinkActive="active">
+          <span class="icon"><i class="fas fa-inbox"></i></span> Bulletins
+        </a>
+      </li>
+      <li *ngIf="(authService.hasAnyRole(['ADMIN_SYSTEME','GESTIONNAIRE_PARAM','GESTIONNAIRE_TARIF','CONSULTATION']) | async)">
+        <a routerLink="/factures" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+          <span class="icon"><i class="fas fa-file-invoice"></i></span> Factures
+        </a>
+      </li>
+      <li *ngIf="(authService.hasAnyRole(['ADMIN_SYSTEME','GESTIONNAIRE_PARAM','GESTIONNAIRE_TARIF']) | async)">
+        <a routerLink="/factures/create" routerLinkActive="active">
+          <span class="icon"><i class="fas fa-plus-circle"></i></span> Nouvelle Facture
+        </a>
+      </li>
+      <li *ngIf="(authService.hasRole('ADMIN_SYSTEME') | async)">
+        <a routerLink="/audit" routerLinkActive="active">
+          <span class="icon"><i class="fas fa-history"></i></span> Journal d'Audit
+        </a>
+      </li>
+      <li *ngIf="(authService.hasRole('ADMIN_SYSTEME') | async)">
+        <a routerLink="/users" routerLinkActive="active">
+          <span class="icon"><i class="fas fa-users-cog"></i></span> Utilisateurs
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <button (click)="onLogout()" class="logout-btn">
+        <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Déconnexion
+      </button>
+    </div>
+  </nav>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

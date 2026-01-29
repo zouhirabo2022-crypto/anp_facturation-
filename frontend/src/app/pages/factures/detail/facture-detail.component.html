@@ -1,0 +1,202 @@
+<div class="container-xl py-4">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center my-5 py-5">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-3 text-muted">Chargement de la facture...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
+    <i class="fa-solid fa-circle-exclamation me-2 fs-4"></i>
+    <div>
+      {{ error }}
+      <button class="btn btn-link p-0 ms-2 align-baseline" (click)="loadFacture(facture?.id || 0)" *ngIf="facture?.id">Réessayer</button>
+    </div>
+  </div>
+
+  <div *ngIf="facture && !loading" class="fade-in">
+    <!-- Header Navigation & Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <a routerLink="/factures" class="btn btn-link text-decoration-none text-muted ps-0">
+        <i class="fa-solid fa-arrow-left me-2"></i>Retour aux factures
+      </a>
+      <div class="d-flex gap-2">
+        <button *ngIf="facture.statut === 'BROUILLON'" class="btn btn-outline-danger btn-sm" (click)="deleteFacture()">
+          <i class="fa-solid fa-trash me-1"></i> Supprimer
+        </button>
+        <button *ngIf="facture.statut !== 'BROUILLON'" class="btn btn-outline-secondary btn-sm" (click)="retransmit()" title="Retransmettre">
+          <i class="fa-solid fa-server me-1"></i> Retransmettre
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Title Card -->
+    <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+      <div class="card-body p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+          <div>
+            <h6 class="text-uppercase text-muted small fw-bold mb-1">Facture N°</h6>
+            <h1 class="display-6 fw-bold text-primary mb-0">{{ facture.numero || 'BROUILLON' }}</h1>
+          </div>
+          <div class="text-end">
+            <span class="badge rounded-pill px-3 py-2 fs-6" 
+              [ngClass]="{
+                'bg-warning text-dark': facture.statut === 'BROUILLON',
+                'bg-success': facture.statut === 'VALIDEE' || facture.statut === 'PAYEE',
+                'bg-danger': facture.statut === 'ANNULEE'
+              }">
+              <i class="fa-solid fa-circle me-1 small"></i> {{ facture.statut }}
+            </span>
+          </div>
+        </div>
+        
+        <!-- Action Bar -->
+        <div class="d-flex gap-2 mt-4 pt-3 border-top">
+          <button *ngIf="facture.statut === 'BROUILLON'" class="btn btn-primary" (click)="validate()">
+            <i class="fa-solid fa-check-circle me-2"></i>Valider la facture
+          </button>
+          
+          <button *ngIf="facture.statut === 'VALIDEE'" class="btn btn-success" (click)="pay()">
+            <i class="fa-solid fa-credit-card me-2"></i>Enregistrer le paiement
+          </button>
+          
+          <button *ngIf="facture.statut !== 'BROUILLON'" class="btn btn-outline-primary" (click)="downloadPdf()">
+            <i class="fa-solid fa-file-pdf me-2"></i>Télécharger PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <!-- Client Info -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+            <h5 class="card-title text-muted mb-0"><i class="fa-regular fa-user me-2"></i>Client</h5>
+          </div>
+          <div class="card-body px-4">
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar-placeholder bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
+                {{ facture.clientNom ? facture.clientNom.charAt(0) : '?' }}
+              </div>
+              <div>
+                <h5 class="fw-bold mb-0">{{ facture.clientNom }}</h5>
+                <span class="text-muted small">ID Client: #{{ facture.clientId }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoice Details -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+            <h5 class="card-title text-muted mb-0"><i class="fa-regular fa-calendar me-2"></i>Détails</h5>
+          </div>
+          <div class="card-body px-4">
+            <div class="row g-3">
+              <div class="col-6">
+                <label class="small text-muted text-uppercase fw-bold">Date d'émission</label>
+                <p class="mb-0 fw-medium fs-5">{{ facture.date | date:'dd MMM yyyy' }}</p>
+                <small class="text-muted">{{ facture.date | date:'HH:mm' }}</small>
+              </div>
+              <div class="col-6">
+                <label class="small text-muted text-uppercase fw-bold">Transmission</label>
+                <p class="mb-0">
+                  <span class="badge bg-light text-dark border">
+                    {{ facture.transmissionStatut || 'Non transmis' }}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Line Items -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-bottom py-3 px-4">
+        <h5 class="mb-0 text-muted"><i class="fa-solid fa-list-ul me-2"></i>Lignes de facturation</h5>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="bg-light">
+            <tr>
+              <th class="px-4 py-3 text-uppercase text-muted small fw-bold border-0">Prestation</th>
+              <th class="py-3 text-end text-uppercase text-muted small fw-bold border-0">Qté</th>
+              <th class="py-3 text-end text-uppercase text-muted small fw-bold border-0">Prix Unit.</th>
+              <th class="py-3 text-end text-uppercase text-muted small fw-bold border-0">Montant HT</th>
+              <th class="py-3 text-end text-uppercase text-muted small fw-bold border-0">TVA</th>
+              <th class="px-4 py-3 text-end text-uppercase text-muted small fw-bold border-0">Total TTC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ligne of facture.lignes">
+              <td class="px-4 py-3">
+                <span class="fw-medium text-dark">{{ ligne.prestationLibelle }}</span>
+                <div *ngIf="ligne.typeTerrain || ligne.natureActivite" class="small text-muted mt-1">
+                  <span *ngIf="ligne.typeTerrain" class="me-2"><i class="fa-solid fa-layer-group me-1"></i>{{ ligne.typeTerrain }}</span>
+                  <span *ngIf="ligne.natureActivite"><i class="fa-solid fa-briefcase me-1"></i>{{ ligne.natureActivite }}</span>
+                </div>
+              </td>
+              <td class="text-end font-monospace">{{ ligne.quantite }}</td>
+              <td class="text-end font-monospace text-muted">{{ ligne.prixUnitaire | currency:'MAD':'symbol':'1.2-2' }}</td>
+              <td class="text-end font-monospace fw-medium">{{ ligne.montantHt | currency:'MAD':'symbol':'1.2-2' }}</td>
+              <td class="text-end font-monospace text-muted">{{ ligne.montantTva | currency:'MAD':'symbol':'1.2-2' }}</td>
+              <td class="px-4 text-end font-monospace fw-bold text-dark">{{ ligne.montantTtc | currency:'MAD':'symbol':'1.2-2' }}</td>
+            </tr>
+            <tr *ngIf="facture.lignes.length === 0">
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="fa-regular fa-folder-open fs-1 mb-3 d-block"></i>
+                Aucune ligne de facturation
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Totals & Summary -->
+    <div class="row justify-content-end mb-5">
+      <div class="col-lg-4 col-md-6">
+        <div class="card border-0 shadow-sm bg-light">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-muted">Total HT</span>
+              <span class="fw-bold font-monospace">{{ facture.montantHt | currency:'MAD':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-muted">Total TVA (20%)</span>
+              <span class="fw-bold font-monospace">{{ facture.montantTva | currency:'MAD':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3" *ngIf="facture.montantTr">
+              <span class="text-muted">Taxe Régionale</span>
+              <span class="fw-bold font-monospace">{{ facture.montantTr | currency:'MAD':'symbol':'1.2-2' }}</span>
+            </div>
+            <hr class="my-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="h5 mb-0 fw-bold text-dark">Net à payer</span>
+              <span class="h3 mb-0 fw-bold text-primary font-monospace">{{ facture.montantTtc | currency:'MAD':'symbol':'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PDF Preview Section -->
+    <div *ngIf="pdfPreviewUrl" class="card border-0 shadow-sm mt-5">
+      <div class="card-header bg-white py-3 px-4">
+        <h5 class="mb-0"><i class="fa-solid fa-file-pdf me-2 text-danger"></i>Aperçu du document</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="ratio ratio-16x9">
+          <iframe [src]="pdfPreviewUrl" title="Aperçu Facture" class="border-0"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

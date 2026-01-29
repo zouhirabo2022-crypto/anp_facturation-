@@ -1,0 +1,394 @@
+<div class="container-fluid p-4">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                 <a (click)="back()" class="text-muted cursor-pointer text-decoration-none">
+                    <i class="fas fa-arrow-left me-1"></i> Prestations
+                </a>
+                <span class="text-muted">/</span>
+                <span class="text-muted">Tarification</span>
+            </div>
+            <h1 class="h3 fw-bold text-anp-blue mb-0">Configuration des Tarifs</h1>
+        </div>
+        <div class="d-flex align-items-center" *ngIf="prestation">
+             <div class="text-end me-3">
+                 <div class="fw-bold text-dark">{{ prestation.libelle }}</div>
+                 <div class="text-muted small">Code: {{ prestation.code }}</div>
+             </div>
+             <div class="bg-light rounded p-2 text-anp-blue">
+                 <i class="fas fa-cube fa-lg"></i>
+             </div>
+        </div>
+    </div>
+
+    <div *ngIf="globalError" class="alert alert-danger shadow-sm-soft border-0 border-start border-4 border-danger mb-4">
+        <i class="fas fa-exclamation-triangle me-2"></i>{{ globalError }}
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success shadow-sm-soft border-0 border-start border-4 border-success mb-4">
+        <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+    </div>
+
+    <!-- Section OTDP -->
+    <div *ngIf="isOTDP()" class="card shadow-sm-soft mb-4">
+        <div class="card-header border-0 bg-white pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0 text-anp-blue"><i class="fas fa-warehouse me-2"></i>Tarifs Occupation (OTDP)</h5>
+            <button class="btn btn-primary btn-sm shadow-sm-soft" (click)="openModal()">
+                <i class="fas fa-plus me-2"></i>Nouveau Tarif
+            </button>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Type de Terrain</th>
+                        <th>Nature d'Activité</th>
+                        <th>Montant</th>
+                        <th>Année</th>
+                        <th>État</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let t of tarifsOTDP">
+                        <td class="ps-4"><span class="badge bg-info-subtle text-info border border-info-subtle">{{ t.typeTerrain }}</span></td>
+                        <td>{{ t.natureActivite || '-' }}</td>
+                        <td class="fw-bold text-dark">{{ t.montant | number:'1.2-2' }} DH</td>
+                        <td><span class="badge bg-light text-dark border">{{ t.anneeTarif }}</span></td>
+                        <td>
+                            <span class="badge rounded-pill" [ngClass]="t.actif ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                                <i class="fas fa-circle me-1 small" style="font-size: 6px; vertical-align: middle;"></i>
+                                {{ t.actif ? 'Actif' : 'Archivé' }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-light text-danger" (click)="deleteOTDP(t.id)" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="tarifsOTDP.length === 0">
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fas fa-folder-open fa-2x mb-3 opacity-25"></i>
+                            <p class="mb-0">Aucun tarif configuré pour cette prestation.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Section Eau/Elec -->
+    <div *ngIf="isEauElec()" class="card shadow-sm-soft mb-4">
+        <div class="card-header border-0 bg-white pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0 text-anp-blue"><i class="fas fa-bolt me-2"></i>Tarifs Eau / Électricité</h5>
+            <button class="btn btn-primary btn-sm shadow-sm-soft" (click)="openModal()">
+                <i class="fas fa-plus me-2"></i>Nouveau Tarif
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Port</th>
+                        <th>Tarif Facture</th>
+                        <th>Année</th>
+                        <th>État</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let t of tarifsEauElec">
+                        <td class="ps-4"><span class="fw-medium">{{ t.codePort }}</span></td>
+                        <td class="fw-bold">{{ t.tarifFacture | number:'1.2-2' }} DH</td>
+                         <td><span class="badge bg-light text-dark border">{{ t.anneeTarif }}</span></td>
+                        <td>
+                             <span class="badge rounded-pill" [ngClass]="t.actif ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                                <i class="fas fa-circle me-1 small" style="font-size: 6px; vertical-align: middle;"></i>
+                                {{ t.actif ? 'Actif' : 'Archivé' }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-light text-primary me-2" (click)="openModal(t)" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light text-danger" (click)="deleteEauElec(t.id)" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="tarifsEauElec.length === 0">
+                         <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="fas fa-folder-open fa-2x mb-3 opacity-25"></i>
+                            <p class="mb-0">Aucun tarif configuré.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Section Autorisation -->
+    <div *ngIf="isAutorisation()" class="card shadow-sm-soft mb-4">
+        <div class="card-header border-0 bg-white pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0 text-anp-blue"><i class="fas fa-file-contract me-2"></i>Tarifs Autorisation</h5>
+            <button class="btn btn-primary btn-sm shadow-sm-soft" (click)="openModal()">
+                <i class="fas fa-plus me-2"></i>Nouveau Tarif
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Montant</th>
+                        <th>Année</th>
+                        <th>État</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let t of tarifsAutorisation">
+                        <td class="ps-4 fw-bold">{{ t.montant | number:'1.2-2' }} DH</td>
+                        <td><span class="badge bg-light text-dark border">{{ t.anneeTarif }}</span></td>
+                        <td>
+                            <span class="badge rounded-pill" [ngClass]="t.actif ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                                {{ t.actif ? 'Actif' : 'Archivé' }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-light text-primary me-2" (click)="openModal(t)" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light text-danger" (click)="deleteAutorisation(t.id)" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Section Concession -->
+    <div *ngIf="isConcession()" class="card shadow-sm-soft mb-4">
+        <div class="card-header border-0 bg-white pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0 text-anp-blue"><i class="fas fa-building me-2"></i>Tarifs Concession</h5>
+            <button class="btn btn-primary btn-sm shadow-sm-soft" (click)="openModal()">
+                <i class="fas fa-plus me-2"></i>Nouveau Tarif
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Montant</th>
+                        <th>Année</th>
+                        <th>État</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let t of tarifsConcession">
+                        <td class="ps-4 fw-bold">{{ t.montant | number:'1.2-2' }} DH</td>
+                        <td><span class="badge bg-light text-dark border">{{ t.anneeTarif }}</span></td>
+                        <td>
+                            <span class="badge rounded-pill" [ngClass]="t.actif ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                                {{ t.actif ? 'Actif' : 'Archivé' }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-light text-primary me-2" (click)="openModal(t)" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light text-danger" (click)="deleteConcession(t.id)" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-backdrop fade show" *ngIf="showModal"></div>
+
+    <!-- Modal -->
+    <div class="modal fade show d-block" *ngIf="showModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title text-primary">
+                        <i class="fas fa-edit me-2"></i>{{ isEditMode ? 'Modifier le Tarif' : 'Nouveau Tarif' }}
+                    </h5>
+                    <button type="button" class="btn-close" (click)="closeModal()"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div *ngIf="errorMessage" class="alert alert-danger mb-4">
+                        <i class="fas fa-exclamation-circle me-2"></i>{{ errorMessage }}
+                    </div>
+
+                    <!-- Formulaire OTDP -->
+                    <form *ngIf="isOTDP()" (ngSubmit)="saveOTDP()">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Type de Terrain</label>
+                                <select class="form-select" [(ngModel)]="newOTDP.typeTerrain" name="typeTerrain" required>
+                                    <option value="Terre_Plein">Terre Plein</option>
+                                    <option value="Plan_Eau">Plan d'Eau</option>
+                                    <option value="Hangar">Hangar</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Année Tarif</label>
+                                <input type="number" class="form-control" [(ngModel)]="newOTDP.anneeTarif" name="anneeTarif" required min="2000" max="2100">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nature Activité</label>
+                                <input type="text" class="form-control" [(ngModel)]="newOTDP.natureActivite" name="natureActivite" required placeholder="Ex: Activité commerciale">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Catégorie</label>
+                                <input type="text" class="form-control" [(ngModel)]="newOTDP.categorie" name="categorie" required placeholder="Ex: Pêche">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Unité de Base</label>
+                                <input type="text" class="form-control" [(ngModel)]="newOTDP.uniteBase" name="uniteBase" required placeholder="Ex: m2/jour">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Montant (DH)</label>
+                                <input type="number" class="form-control" [(ngModel)]="newOTDP.montant" name="montant" required min="0" step="0.01">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label d-block">État</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" [(ngModel)]="newOTDP.actif" name="actif" id="otdpActif">
+                                    <label class="form-check-label" for="otdpActif">Tarif Actif</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-light" (click)="closeModal()">Annuler</button>
+                            <button type="submit" class="btn btn-primary" [disabled]="loading">
+                                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                                {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Formulaire Eau/Elec -->
+                    <form *ngIf="isEauElec()" (ngSubmit)="saveEauElec()">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Libellé</label>
+                                <input type="text" class="form-control" [(ngModel)]="newEauElec.libelle" name="libelle" required placeholder="Ex: Eau Potable">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Code Port</label>
+                                <input type="text" class="form-control" [(ngModel)]="newEauElec.codePort" name="codePort" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Code Activité</label>
+                                <input type="text" class="form-control" [(ngModel)]="newEauElec.codeActivite" name="codeActivite" required placeholder="Ex: ACT001">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Année Tarif</label>
+                                <input type="number" class="form-control" [(ngModel)]="newEauElec.anneeTarif" name="anneeTarif" required min="2000">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tarif Distributeur (DH)</label>
+                                <input type="number" class="form-control" [(ngModel)]="newEauElec.tarifDistributeur" name="tarifDistributeur" required min="0" step="0.01">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tarif Facture (DH)</label>
+                                <input type="number" class="form-control" [(ngModel)]="newEauElec.tarifFacture" name="tarifFacture" required min="0" step="0.01">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label d-block">État</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" [(ngModel)]="newEauElec.actif" name="actif" id="eauActif">
+                                    <label class="form-check-label" for="eauActif">Tarif Actif</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-light" (click)="closeModal()">Annuler</button>
+                            <button type="submit" class="btn btn-primary" [disabled]="loading">
+                                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                                {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Formulaire Autorisation -->
+                    <form *ngIf="isAutorisation()" (ngSubmit)="saveAutorisation()">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Libellé</label>
+                                <input type="text" class="form-control" [(ngModel)]="newAutorisation.libelle" name="libelle" required placeholder="Ex: Autorisation annuelle">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Montant (DH)</label>
+                                <input type="number" class="form-control" [(ngModel)]="newAutorisation.montant" name="montant" required min="0" step="0.01">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Année Tarif</label>
+                                <input type="number" class="form-control" [(ngModel)]="newAutorisation.anneeTarif" name="anneeTarif" required min="2000">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label d-block">État</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" [(ngModel)]="newAutorisation.actif" name="actif" id="authActif">
+                                    <label class="form-check-label" for="authActif">Tarif Actif</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-light" (click)="closeModal()">Annuler</button>
+                            <button type="submit" class="btn btn-primary" [disabled]="loading">
+                                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                                {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Formulaire Concession -->
+                    <form *ngIf="isConcession()" (ngSubmit)="saveConcession()">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Type de Contrat</label>
+                                <input type="text" class="form-control" [(ngModel)]="newConcession.typeContrat" name="typeContrat" required placeholder="Ex: Contrat long terme">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Montant (DH)</label>
+                                <input type="number" class="form-control" [(ngModel)]="newConcession.montant" name="montant" required min="0" step="0.01">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Année Tarif</label>
+                                <input type="number" class="form-control" [(ngModel)]="newConcession.anneeTarif" name="anneeTarif" required min="2000">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label d-block">État</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" [(ngModel)]="newConcession.actif" name="actif" id="concActif">
+                                    <label class="form-check-label" for="concActif">Tarif Actif</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-light" (click)="closeModal()">Annuler</button>
+                            <button type="submit" class="btn btn-primary" [disabled]="loading">
+                                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                                {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

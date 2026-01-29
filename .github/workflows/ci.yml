@@ -26,6 +26,12 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      # Service MailHog pour les tests d'envoi d'email
+      mailhog:
+        image: mailhog/mailhog
+        ports:
+          - 1025:1025
+
     steps:
     - uses: actions/checkout@v4
 

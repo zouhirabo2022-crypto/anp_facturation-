@@ -360,6 +360,60 @@ public class FactureServiceImpl implements FactureService {
     }
 
     @Override
+    public FactureDTO createAvoir(@org.springframework.lang.NonNull Long id) {
+        // 1. Retrieve original invoice
+        Facture original = factureRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Facture not found with id: " + id));
+
+        // 2. Verify status
+        if (original.getStatut() != StatutFacture.VALIDEE && original.getStatut() != StatutFacture.PAYEE) {
+            throw new IllegalStateException(
+                    "Cannot create a Credit Note for an invoice that is not Validated or Paid.");
+        }
+
+        // 3. Create new Facture (Avoir)
+        Facture avoir = new Facture();
+        avoir.setClient(original.getClient());
+        avoir.setDate(LocalDate.now());
+        avoir.setStatut(StatutFacture.VALIDEE); // Avoirs are immediately valid
+        avoir.setNumero(generateOfficialNumber()); // New sequence number
+
+        BigDecimal totalHt = BigDecimal.ZERO;
+        BigDecimal totalTr = BigDecimal.ZERO;
+        BigDecimal totalTva = BigDecimal.ZERO;
+        BigDecimal totalTtc = BigDecimal.ZERO;
+
+        // 4. Clone lines with negative quantities
+        for (LigneFacture originalLine : original.getLignes()) {
+            Double negativeQty = originalLine.getQuantite() * -1;
+            LigneFacture newLine = createLigne(avoir, originalLine.getPrestation(), negativeQty,
+                    originalLine.getPrixUnitaire());
+
+            totalHt = totalHt.add(BigDecimal.valueOf(newLine.getMontantHt()));
+            totalTr = totalTr.add(BigDecimal.valueOf(newLine.getMontantTr()));
+            totalTva = totalTva.add(BigDecimal.valueOf(newLine.getMontantTva()));
+            totalTtc = totalTtc.add(BigDecimal.valueOf(newLine.getMontantTtc()));
+
+            avoir.addLigne(newLine);
+        }
+
+        avoir.setMontantHt(totalHt.doubleValue());
+        avoir.setMontantTr(totalTr.doubleValue());
+        avoir.setMontantTva(totalTva.doubleValue());
+        avoir.setMontantTtc(totalTtc.doubleValue());
+
+        // 5. Save and Audit
+        Facture savedAvoir = factureRepository.save(avoir);
+        auditService.log("CREATE_AVOIR",
+                "Credit Note " + savedAvoir.getNumero() + " created based on " + original.getNumero());
+
+        // 6. Send Email (Optional but good practice)
+        sendInvoiceEmail(savedAvoir);
+
+        return mapper.toDto(savedAvoir);
+    }
+
+    @Override
     public String exportToCsv() {
         List<Facture> factures = factureRepository.findAll();
         StringBuilder csv = new StringBuilder();

@@ -72,6 +72,13 @@ public class FactureController {
         return ResponseEntity.ok(service.markAsPaid(id));
     }
 
+    @PostMapping("/{id}/avoir")
+    @Operation(summary = "Générer un Avoir (Facture négative) pour annuler une facture validée")
+    @PreAuthorize("hasAnyRole('ADMIN_SYSTEME', 'GESTIONNAIRE_PARAM')")
+    public ResponseEntity<FactureDTO> createAvoir(@PathVariable @org.springframework.lang.NonNull Long id) {
+        return ResponseEntity.ok(service.createAvoir(id));
+    }
+
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> getPdf(@PathVariable @org.springframework.lang.NonNull Long id) {
         byte[] pdf = service.generatePdf(id);

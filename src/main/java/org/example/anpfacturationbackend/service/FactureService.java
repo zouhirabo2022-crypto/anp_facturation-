@@ -20,6 +20,8 @@ public interface FactureService {
 
     FactureDTO markAsPaid(@org.springframework.lang.NonNull Long id);
 
+    FactureDTO createAvoir(@org.springframework.lang.NonNull Long id);
+
     String exportToCsv();
 
     Double lookupPrice(Long prestationId, String typeTerrain, String natureActivite, String categorie, String codePort,

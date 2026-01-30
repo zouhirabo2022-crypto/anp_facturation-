@@ -16,9 +16,6 @@ class FacturationFlowIntegrationTest extends AbstractIntegrationTest {
         @Autowired
         private TestRestTemplate restTemplate;
 
-        @org.springframework.test.context.bean.override.mockito.MockitoBean
-        private org.example.anpfacturationbackend.service.EmailService emailService;
-
         @Test
         void verifyFullBusinessFlow() {
                 // 1. Authenticate

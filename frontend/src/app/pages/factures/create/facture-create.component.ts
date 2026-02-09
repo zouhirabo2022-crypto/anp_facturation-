@@ -116,27 +116,46 @@ export class FactureCreateComponent implements OnInit {
     }
 
     saveFacture(): void {
-        this.errorMessage = null;
-        if (this.newFacture.clientId === 0) {
-            this.errorMessage = 'Veuillez sélectionner un client';
-            return;
-        }
-        if (this.newFacture.lignes.length === 0) {
-            this.errorMessage = 'Veuillez ajouter au moins une ligne';
-            return;
-        }
+    this.errorMessage = null;
 
-        this.loading = true;
-        this.factureService.create(this.newFacture).subscribe({
-            next: () => {
-                this.loading = false;
-                this.router.navigate(['/factures']);
-            },
-            error: (err) => {
-                this.loading = false;
-                this.errorMessage = 'Erreur lors de la création de la facture : ' + (err.error?.message || err.message);
-                console.error(err);
-            }
-        });
+    if (this.newFacture.clientId === 0) {
+        this.errorMessage = 'Veuillez sélectionner un client';
+        return;
     }
+    if (this.newFacture.lignes.length === 0) {
+        this.errorMessage = 'Veuillez ajouter au moins une ligne';
+        return;
+    }
+
+    // ⚠️ Construire le payload minimal attendu par le backend
+    const payload = {
+        clientId: this.newFacture.clientId,
+        lignes: this.newFacture.lignes.map(l => ({
+            prestationId: l.prestationId,
+            quantite: l.quantite,
+            typeTerrain: l.typeTerrain,
+            natureActivite: l.natureActivite,
+            categorie: l.categorie,
+            codePort: l.codePort,
+            codeActivite: l.codeActivite
+        }))
+    };
+console.log('FACTURE PAYLOAD =>', JSON.stringify(payload, null, 2));
+
+    this.loading = true;
+
+    this.factureService.create(payload as any).subscribe({
+        next: (f: any) => {
+            this.loading = false;
+            this.router.navigate(['/factures', f.id]);
+        },
+        error: (err) => {
+            this.loading = false;
+            this.errorMessage =
+              'Erreur lors de la création : ' + (err.error?.message || err.message);
+            console.error(err);
+        }
+    });
+}
+
 }

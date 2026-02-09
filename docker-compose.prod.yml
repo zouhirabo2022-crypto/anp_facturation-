@@ -1,72 +1,61 @@
 version: '3.8'
 
 services:
-  # Base de données Production (Simulée pour le test local)
-  # En vraie production, connectez-vous à une instance managée (RDS, etc.)
-  db-prod:
+  db:
     image: postgres:14-alpine
     container_name: anp-postgres-prod
     restart: always
     environment:
-      - POSTGRES_USER=${PROD_DB_USER:-prod_user}
-      - POSTGRES_PASSWORD=${PROD_DB_PASS:-prod_pass}
-      - POSTGRES_DB=anpdb_prod
-    ports:
-      - "5434:5432"
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
-      - anp-network-prod
+      - anp-prod-network
 
-  app-prod:
-    build: .
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: anp-backend-prod
-    ports:
-      - "8082:8080" # Port différent du Dev et de PHPMyAdmin (8081)
+    restart: always
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      # DB Connection
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-prod:5432/anpdb_prod
-      - SPRING_DATASOURCE_USERNAME=${PROD_DB_USER:-prod_user}
-      - SPRING_DATASOURCE_PASSWORD=${PROD_DB_PASS:-prod_pass}
-
-      # Integrations (Variables à définir dans votre environnement ou .env)
-      - SI_FINANCE_URL=${SI_FINANCE_URL}
-      - SI_FINANCE_USERNAME=${SI_FINANCE_USERNAME}
-      - SI_FINANCE_PASSWORD=${SI_FINANCE_PASSWORD}
-
-      - PREST_URL=${PREST_URL}
-      - PREST_USERNAME=${PREST_USERNAME}
-      - PREST_PASSWORD=${PREST_PASSWORD}
-
-      - GRC_URL=${GRC_URL}
-      - GRC_USERNAME=${GRC_USERNAME}
-      - GRC_PASSWORD=${GRC_PASSWORD}
-
-      # Email
-      - SPRING_MAIL_HOST=${SMTP_HOST}
-      - SPRING_MAIL_PORT=${SMTP_PORT}
-      - SPRING_MAIL_USERNAME=${SMTP_USER}
-      - SPRING_MAIL_PASSWORD=${SMTP_PASS}
-
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
     depends_on:
-      - db-prod
+      db:
+        condition: service_healthy
     networks:
-      - anp-network-prod
+      - anp-prod-network
 
-  # Frontend connecté à la prod
-  front-prod:
-    build: ./frontend
+  front:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.prod
     container_name: anp-frontend-prod
+    restart: always
     ports:
-      - "8089:80" # Port différent du Dev
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
     depends_on:
-      - app-prod
+      - app
     networks:
-      - anp-network-prod
+      - anp-prod-network
 
 networks:
-  anp-network-prod:
+  anp-prod-network:
     driver: bridge
 
 volumes:

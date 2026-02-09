@@ -7,7 +7,7 @@ import { TokenService } from './token.service';
     providedIn: 'root'
 })
 export class AuthService {
-    private baseUrl = 'http://localhost:8080/api';
+    private baseUrl = '/api';
     private loggedIn = new BehaviorSubject<boolean>(false);
     private roles$ = new BehaviorSubject<string[]>([]);
 

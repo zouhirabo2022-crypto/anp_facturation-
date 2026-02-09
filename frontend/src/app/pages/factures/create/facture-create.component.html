@@ -78,12 +78,27 @@
                                             <h6 class="card-subtitle mb-2 text-muted small"><i class="fas fa-filter me-1"></i>Critères de tarification</h6>
                                             <div class="row g-2">
                                                 <div class="col-md-4">
-                                                    <small class="text-muted d-block mb-1">Type Terrain (OTDP)</small>
+                                                    <small class="text-muted d-block mb-1">Type Terrain</small>
                                                     <select [(ngModel)]="ligne.typeTerrain" class="form-select form-select-sm" (change)="onCriteriaChange(i)">
                                                         <option [ngValue]="undefined">-</option>
                                                         <option value="NU">Terrain Nu</option>
-                                                        <option value="AMENAGE">Terrain Aménagé</option>
                                                         <option value="BATI">Bâtiment</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-muted d-block mb-1">Nature Activité</small>
+                                                    <select [(ngModel)]="ligne.natureActivite" class="form-select form-select-sm" (change)="onCriteriaChange(i)">
+                                                        <option [ngValue]="undefined">-</option>
+                                                        <option value="COMMERCIALE">Commerciale</option>
+                                                        <option value="INDUSTRIELLE">Industrielle</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-muted d-block mb-1">Catégorie</small>
+                                                    <select [(ngModel)]="ligne.categorie" class="form-select form-select-sm" (change)="onCriteriaChange(i)">
+                                                        <option [ngValue]="undefined">-</option>
+                                                        <option value="STANDARD">Standard</option>
+                                                        <option value="SPECIALE">Spéciale</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-4">
@@ -93,20 +108,6 @@
                                                         <option value="CASABLANCA">Casablanca</option>
                                                         <option value="JORF_LASFAR">Jorf Lasfar</option>
                                                         <option value="AGADIR">Agadir</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <small class="text-muted d-block mb-1">Activité (OTDP)</small>
-                                                    <input type="text" [(ngModel)]="ligne.natureActivite" class="form-control form-control-sm"
-                                                        placeholder="Ex: Cimenterie" (input)="onCriteriaChange(i)">
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <small class="text-muted d-block mb-1">Catégorie (OTDP)</small>
-                                                    <select [(ngModel)]="ligne.categorie" class="form-select form-select-sm" (change)="onCriteriaChange(i)">
-                                                        <option [ngValue]="undefined">-</option>
-                                                        <option value="PECHE">Pêche</option>
-                                                        <option value="PLAISANCE">Plaisance</option>
-                                                        <option value="AUTRE">Autre</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-4">
@@ -175,6 +176,7 @@
                             <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
                             <i class="fas fa-save me-2" *ngIf="!loading"></i>Enregistrer
                         </button>
+                        
                     </div>
                 </div>
             </div>

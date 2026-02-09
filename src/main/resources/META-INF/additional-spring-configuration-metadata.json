@@ -1,59 +1,34 @@
 {
     "properties": [
         {
-            "name": "spring.ldap.ad.domain",
-            "type": "java.lang.String",
-            "description": "Domain for Active Directory authentication."
+            "name": "si.finance.timeout",
+            "type": "java.lang.Integer",
+            "description": "Timeout in milliseconds for SI Finance API calls."
         },
         {
-            "name": "spring.ldap.ad.url",
-            "type": "java.lang.String",
-            "description": "URL for Active Directory LDAP server."
+            "name": "prest.timeout",
+            "type": "java.lang.Integer",
+            "description": "Timeout in milliseconds for PREST API calls."
+        },
+        {
+            "name": "grc.timeout",
+            "type": "java.lang.Integer",
+            "description": "Timeout in milliseconds for GRC API calls."
         },
         {
             "name": "si.finance.url",
             "type": "java.lang.String",
-            "description": "URL of the SI Finance external system."
-        },
-        {
-            "name": "si.finance.username",
-            "type": "java.lang.String",
-            "description": "Username for SI Finance."
-        },
-        {
-            "name": "si.finance.password",
-            "type": "java.lang.String",
-            "description": "Password for SI Finance."
+            "description": "URL for SI Finance API."
         },
         {
             "name": "prest.url",
             "type": "java.lang.String",
-            "description": "URL of the PREST system."
-        },
-        {
-            "name": "prest.username",
-            "type": "java.lang.String",
-            "description": "Username for PREST system."
-        },
-        {
-            "name": "prest.password",
-            "type": "java.lang.String",
-            "description": "Password for PREST system."
+            "description": "URL for PREST API."
         },
         {
             "name": "grc.url",
             "type": "java.lang.String",
-            "description": "URL of the GRC system."
-        },
-        {
-            "name": "grc.username",
-            "type": "java.lang.String",
-            "description": "Username for GRC system."
-        },
-        {
-            "name": "grc.password",
-            "type": "java.lang.String",
-            "description": "Password for GRC system."
+            "description": "URL for GRC API."
         }
     ]
 }
